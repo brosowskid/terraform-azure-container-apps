@@ -10,6 +10,39 @@ resource "azurerm_resource_group" "rg" {
   tags     = var.tags
 }
 
+# Virtual Network
+resource "azurerm_virtual_network" "vnet" {
+  name                = "vnet-${var.project}-${var.environment}-${var.location_short}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  address_space       = ["10.0.0.0/16"]
+  tags                = var.tags
+}
+
+# Subnet for Container Apps Environment
+resource "azurerm_subnet" "apps" {
+  name                 = "snet-apps-${var.project}-${var.environment}-${var.location_short}"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.0.0/23"]
+
+  delegation {
+    name = "container-apps"
+    service_delegation {
+      name    = "Microsoft.App/environments"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+    }
+  }
+}
+
+# Infrastructure Subnet (for potential future use)
+resource "azurerm_subnet" "infrastructure" {
+  name                 = "snet-infra-${var.project}-${var.environment}-${var.location_short}"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.2.0/23"]
+}
+
 # Log Analytics Workspace
 resource "azurerm_log_analytics_workspace" "law" {
   name                = "law-${var.project}-${var.environment}-${var.location_short}"
@@ -22,11 +55,13 @@ resource "azurerm_log_analytics_workspace" "law" {
 
 # Container Apps Environment
 resource "azurerm_container_app_environment" "env" {
-  name                       = "cae-${var.project}-${var.environment}-${var.location_short}"
-  location                   = azurerm_resource_group.rg.location
-  resource_group_name        = azurerm_resource_group.rg.name
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
-  tags                       = var.tags
+  name                           = "cae-${var.project}-${var.environment}-${var.location_short}"
+  location                       = azurerm_resource_group.rg.location
+  resource_group_name           = azurerm_resource_group.rg.name
+  log_analytics_workspace_id    = azurerm_log_analytics_workspace.law.id
+  infrastructure_subnet_id      = azurerm_subnet.apps.id
+  internal_load_balancer_enabled = false
+  tags                          = var.tags
 }
 
 # Open WebUI Container App
