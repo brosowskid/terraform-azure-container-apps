@@ -15,7 +15,7 @@ resource "azurerm_virtual_network" "vnet" {
   name                = "vnet-${var.project}-${var.environment}-${var.location_short}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  address_space       = ["10.0.0.0/16"]
+  address_space       = [var.vnet_address_space]
   tags                = var.tags
 }
 
@@ -24,7 +24,7 @@ resource "azurerm_subnet" "apps" {
   name                 = "snet-apps-${var.project}-${var.environment}-${var.location_short}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.0.0/23"]
+  address_prefixes     = [var.apps_subnet_prefix]
 
   delegation {
     name = "container-apps"
@@ -35,12 +35,12 @@ resource "azurerm_subnet" "apps" {
   }
 }
 
-# Infrastructure Subnet (for potential future use)
+# Infrastructure Subnet
 resource "azurerm_subnet" "infrastructure" {
   name                 = "snet-infra-${var.project}-${var.environment}-${var.location_short}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.2.0/23"]
+  address_prefixes     = [var.infrastructure_subnet_prefix]
 }
 
 # Log Analytics Workspace
@@ -48,8 +48,8 @@ resource "azurerm_log_analytics_workspace" "law" {
   name                = "law-${var.project}-${var.environment}-${var.location_short}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
+  sku                 = var.log_analytics_sku
+  retention_in_days   = var.log_retention_days
   tags                = var.tags
 }
 
@@ -75,14 +75,14 @@ resource "azurerm_container_app" "webui" {
     container {
       name   = "open-webui"
       image  = "open-webui/open-webui:latest"
-      cpu    = 1.0
-      memory = "2Gi"
+      cpu    = var.webui_cpu
+      memory = var.webui_memory
     }
   }
 
   ingress {
     external_enabled = true
-    target_port     = 8080
+    target_port     = var.webui_port
     traffic_weight {
       percentage      = 100
       latest_revision = true
@@ -103,8 +103,8 @@ resource "azurerm_container_app" "pipeline" {
     container {
       name   = "pipeline"
       image  = var.pipeline_image
-      cpu    = 1.0
-      memory = "2Gi"
+      cpu    = var.pipeline_cpu
+      memory = var.pipeline_memory
     }
   }
 
