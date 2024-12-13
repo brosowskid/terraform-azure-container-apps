@@ -47,6 +47,6 @@ output "tenant_id" {
 }
 
 output "pal_status" {
-  value = data.azapi_resource.check_pal.output
+  value = data.azapi_resource.partner_admin_link.output
   description = "Current Partner Admin Link status"
 }
