@@ -14,6 +14,24 @@ variable "service_principal_name" {
 provider "azapi" {
 }
 
+# Provider configuration
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">=3.0.0"
+    }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = ">=2.0.0"
+    }
+    azapi = {
+      source  = "Azure/azapi"  # Corrected source path
+      version = ">=1.5.0"
+    }
+  }
+}
+
 # Data source to get the service principal details
 data "azuread_service_principal" "sp" {
   display_name = var.service_principal_name
@@ -26,9 +44,6 @@ data "azapi_resource" "check_pal" {
   parent_id = ""
 
   response_export_values = ["*"]
-
-  # The read will fail if the PAL doesn't exist, but that's expected
-  fails_on_404 = false
 }
 
 # Create or update Partner Admin Link
