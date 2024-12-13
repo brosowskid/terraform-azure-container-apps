@@ -88,7 +88,7 @@ output "pal_status" {
     etag       = try(local.pal_output.etag, null)
     id         = azapi_resource.partner_admin_link.id
     name       = azapi_resource.partner_admin_link.name
-    updatedTime= pal_output.properties.updatedTime
+    updatedTime= azapi_resource.partner_admin_link.updatedTime
     type = azapi_resource.partner_admin_link.type
   }
   description = "Detailed PAL status"
