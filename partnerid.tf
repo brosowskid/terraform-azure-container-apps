@@ -17,7 +17,8 @@ data "azuread_service_principal" "sp2" {
 # Create or update Partner Admin Link
 resource "azapi_resource" "partner_admin_link" {
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
-  name                      = "${var.partner_id}-${data.azuread_service_principal.sp.object_id}"
+  name                      = var.partner_id
+  id               = "/providers/Microsoft.ManagementPartner/partners/${var.partner_id}-${azuread_service_principal.sp.object_id}"
   parent_id                 = "/"
   schema_validation_enabled = false
     ignore_missing_property  = true
@@ -41,7 +42,8 @@ resource "azapi_resource" "partner_admin_link" {
 # Create or update Partner Admin Link
 resource "azapi_resource" "partner_admin_link1" {
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
-  name                      = "${var.partner_id}-${data.azuread_service_principal.sp1.object_id}"
+  name                      = var.partner_id
+  id               = "/providers/Microsoft.ManagementPartner/partners/${var.partner_id}-${azuread_service_principal.sp1.object_id}"
   parent_id                 = "/"
   schema_validation_enabled = false
     ignore_missing_property  = true
@@ -64,7 +66,8 @@ resource "azapi_resource" "partner_admin_link1" {
 
 resource "azapi_resource" "partner_admin_link2" {
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
-  name                      = "${var.partner_id}-${data.azuread_service_principal.sp2.object_id}"
+  name                      = var.partner_id
+  id               = "/providers/Microsoft.ManagementPartner/partners/${var.partner_id}-${azuread_service_principal.sp2.object_id}"
   parent_id                 = "/"
   schema_validation_enabled = false
     ignore_missing_property  = true
