@@ -24,7 +24,8 @@ resource "azapi_resource" "partner_admin_link" {
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
     ignore_changes = [
-      body
+      body,
+      name
     ]
   }
 
@@ -46,7 +47,8 @@ resource "azapi_resource" "partner_admin_link1" {
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
     ignore_changes = [
-      body
+      body,
+      name
     ]
   }
 
@@ -67,7 +69,8 @@ resource "azapi_resource" "partner_admin_link2" {
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
     ignore_changes = [
-      body
+      body,
+      name
     ]
   }
 
