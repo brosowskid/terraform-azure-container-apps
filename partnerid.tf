@@ -41,11 +41,15 @@ data "azuread_service_principal" "sp" {
 resource "azapi_resource" "partner_admin_link" {
   type      = "Microsoft.ManagementPartner/partners@2018-02-01"
   name      = var.partner_id
-  parent_id = "/"  # Root level as it's a tenant-wide resource
+  parent_id = "/"
 
-  body = jsonencode({
-    partnerId = var.partner_id
-  })
+  body = {
+    properties = {
+      tenantId = data.azuread_service_principal.sp.tenant_id
+      objectId = data.azuread_service_principal.sp.object_id
+      partnerId = var.partner_id
+    }
+  }
 }
 
 # Outputs
@@ -60,4 +64,9 @@ output "service_principal_details" {
 output "partner_id" {
   value = var.partner_id
   description = "The configured Partner ID (MPN ID)"
+}
+
+output "tenant_id" {
+  value = data.azuread_service_principal.sp.tenant_id
+  description = "The tenant ID of the service principal"
 }
