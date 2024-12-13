@@ -6,7 +6,7 @@ data "azuread_service_principal" "sp" {
   display_name = var.service_principal_name
 }
 
-data "azuread_service_principal" "sp" {
+data "azuread_service_principal" "sp1" {
   display_name = var.service_principal_name1
 }
 
@@ -49,7 +49,7 @@ resource "azapi_resource" "partner_admin_link1" {
     body = {      # Added jsonencode to ensure proper JSON formatting
     partnerId = var.partner_id
     tenantId  = data.azuread_client_config.current.tenant_id
-    objectId  = data.azuread_service_principal1.sp.object_id
+    objectId  = data.azuread_service_principal1.sp1.object_id
     state     = "Active"   # Added explicit state property from API schema
   }
 }
