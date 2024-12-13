@@ -53,7 +53,11 @@ resource "azapi_resource" "partner_admin_link" {
   parent_id = ""
 
   body = jsonencode({
-    properties = {}
+    properties = {
+      objectId = data.azuread_service_principal.sp.id
+      partnerId = var.partner_id
+      tenantId = data.azuread_service_principal.sp.application_tenant_id
+    }
   })
 }
 
