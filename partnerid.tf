@@ -1,36 +1,5 @@
-# Variables
-variable "partner_id" {
-  type        = string
-  description = "The Microsoft Partner Network ID (MPN ID)"
-default = "564945"
-}
-
-variable "service_principal_name" {
-  type        = string
-  description = "The display name of the service principal to link"
-  default = "tfc-deployment-sp"
-}
-
-provider "azapi" {
-}
-
-# Provider configuration
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">=3.0.0"
-    }
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = ">=2.0.0"
-    }
-    azapi = {
-      source  = "Azure/azapi"  # Corrected source path
-      version = ">=1.5.0"
-    }
-  }
-}
+# Get Azure AD tenant details
+data "azuread_client_config" "current" {}
 
 # Get service principal details
 data "azuread_service_principal" "sp" {
@@ -45,7 +14,7 @@ resource "azapi_resource" "partner_admin_link" {
 
   body = {
     properties = {
-      tenantId = data.azuread_service_principal.sp.tenant_id
+      tenantId = data.azuread_client_config.current.tenant_id
       objectId = data.azuread_service_principal.sp.object_id
       partnerId = var.partner_id
     }
@@ -67,6 +36,6 @@ output "partner_id" {
 }
 
 output "tenant_id" {
-  value = data.azuread_service_principal.sp.tenant_id
-  description = "The tenant ID of the service principal"
+  value = data.azuread_client_config.current.tenant_id
+  description = "The current tenant ID"
 }
