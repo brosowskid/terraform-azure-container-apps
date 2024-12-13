@@ -88,16 +88,7 @@ output "pal_status" {
     etag       = try(local.pal_output.etag, null)
     id         = azapi_resource.partner_admin_link.id
     name       = azapi_resource.partner_admin_link.name
-    properties = {
-      createdTime  = try(local.pal_output.properties.createdTime, null)
-      objectId     = try(local.pal_output.properties.objectId, null)
-      partnerId    = try(local.pal_output.properties.partnerId, null)
-      partnerName  = try(local.pal_output.properties.partnerName, null)
-      state        = try(local.pal_output.properties.state, null)
-      tenantId     = try(local.pal_output.properties.tenantId, null)
-      updatedTime  = try(local.pal_output.properties.updatedTime, null)
-      version      = try(local.pal_output.properties.version, null)
-    }
+    updatedTime= pal_output.properties.updatedTime
     type = azapi_resource.partner_admin_link.type
   }
   description = "Detailed PAL status"
