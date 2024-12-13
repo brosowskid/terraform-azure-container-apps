@@ -14,11 +14,11 @@ resource "azapi_resource" "partner_admin_link" {
   # schema_validation_enabled = false
 
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
-  # lifecycle {
-  #   ignore_changes = [
-  #     body
-  #   ]
-  # }
+  lifecycle {
+    ignore_changes = [
+      body
+    ]
+  }
 
   # body = {
   #   tenantId  = data.azuread_client_config.current.tenant_id
