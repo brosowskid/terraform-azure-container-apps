@@ -17,6 +17,12 @@ variable "service_principal_name1" {
   default     = "tfm-deployment-sp"
 }
 
+variable "service_principal_name2" {
+  type        = string
+  description = "The display name of the service principal to link"
+  default     = "jenkins-oidc"
+}
+
 provider "azapi" {
 }
 
