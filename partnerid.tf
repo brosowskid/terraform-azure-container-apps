@@ -6,25 +6,9 @@ data "azuread_service_principal" "sp" {
   display_name = var.service_principal_name
 }
 
-locals {
-  # Safely check if PAL exists and get its status
-  pal_exists = can(data.azapi_resource.check_pal[0].id)
-  pal_status = try(data.azapi_resource.check_pal[0].output, null)
-  needs_update = !local.pal_exists
-}
-
-# Check Partner Admin Link status
-data "azapi_resource" "check_pal" {
-  count     = 1
-  type      = "Microsoft.ManagementPartner/partners@2018-02-01"
-  name      = var.partner_id
-  parent_id = "/"
-  response_export_values = ["*"]
-}
-
-# Create or update Partner Admin Link
+# Create or update Partner Admin Link only if it doesn't exist
 resource "azapi_resource" "partner_admin_link" {
-  count                     = local.needs_update ? 1 : 0
+  count                     = try(data.azapi_resource.check_pal.id, "") == "" ? 1 : 0
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
   name                      = var.partner_id
   parent_id                 = "/"
@@ -35,6 +19,14 @@ resource "azapi_resource" "partner_admin_link" {
     objectId  = data.azuread_service_principal.sp.object_id
     partnerId = var.partner_id
   }
+}
+
+# Check Partner Admin Link status - keeping this separate from the creation logic
+data "azapi_resource" "check_pal" {
+  type                   = "Microsoft.ManagementPartner/partners@2018-02-01"
+  name                   = var.partner_id
+  parent_id             = "/"
+  response_export_values = ["*"]
 }
 
 # Outputs
@@ -56,17 +48,7 @@ output "tenant_id" {
   description = "The current tenant ID"
 }
 
-output "pal_exists" {
-  value = local.pal_exists
-  description = "Whether the Partner Admin Link exists"
-}
-
 output "pal_status" {
-  value = local.pal_status
-  description = "Current Partner Admin Link status (null if it doesn't exist)"
-}
-
-output "needs_update" {
-  value = local.needs_update
-  description = "Whether the PAL needs to be created or updated"
+  value = try(data.azapi_resource.check_pal.output, "PAL not found")
+  description = "Current Partner Admin Link status"
 }
