@@ -13,12 +13,11 @@ resource "azapi_resource" "partner_admin_link" {
   parent_id                 = "/"
   schema_validation_enabled = false
 
-  # Only create if GET request returns 404
+  # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
-    precondition {
-      condition     = can(data.azapi_resource_action.check_pal.output)
-      error_message = "Partner Admin Link already exists"
-    }
+    ignore_changes = [
+      body
+    ]
   }
 
   body = {
@@ -26,15 +25,6 @@ resource "azapi_resource" "partner_admin_link" {
     objectId  = data.azuread_service_principal.sp.object_id
     partnerId = var.partner_id
   }
-}
-
-# Check if PAL exists using resource_action instead of resource
-data "azapi_resource_action" "check_pal" {
-  type                   = "Microsoft.ManagementPartner/partners@2018-02-01"
-  resource_id            = "/providers/Microsoft.ManagementPartner/partners/${var.partner_id}"
-  action                 = "GET"
-  response_export_values = ["*"]
-  method                 = "GET"
 }
 
 # Outputs
@@ -56,7 +46,7 @@ output "tenant_id" {
   description = "The current tenant ID"
 }
 
-output "pal_status" {
-  value = try(data.azapi_resource_action.check_pal.output, "PAL not found")
-  description = "Current Partner Admin Link status"
+output "configuration_message" {
+  value = "Partner Admin Link configuration attempted. Please verify in Azure Portal or using az cli with appropriate permissions."
+  description = "Configuration status message"
 }
