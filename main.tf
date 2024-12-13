@@ -1,8 +1,3 @@
-# Azure Provider configuration
-provider "azurerm" {
-  features {}
-}
-
 # Resource Group
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${var.project}-${var.environment}-${var.location_short}"
