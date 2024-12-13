@@ -62,7 +62,7 @@ resource "azapi_resource" "partner_admin_link" {
 
 
 locals {
-  pal_output = jsondecode(azapi_resource.partner_admin_link.output)
+  pal_output = try(azapi_resource.partner_admin_link.output, {})
   pal_exists = can(azapi_resource.partner_admin_link.id)
   # Check if current configuration matches the desired state
   needs_update = local.pal_exists ? (
@@ -86,8 +86,8 @@ output "pal_exists" {
 output "pal_status" {
   value = {
     etag       = try(local.pal_output.etag, null)
-    id         = try(local.pal_output.id, null)
-    name       = try(local.pal_output.name, null)
+    id         = azapi_resource.partner_admin_link.id
+    name       = azapi_resource.partner_admin_link.name
     properties = {
       createdTime  = try(local.pal_output.properties.createdTime, null)
       objectId     = try(local.pal_output.properties.objectId, null)
@@ -98,7 +98,7 @@ output "pal_status" {
       updatedTime  = try(local.pal_output.properties.updatedTime, null)
       version      = try(local.pal_output.properties.version, null)
     }
-    type = try(local.pal_output.type, null)
+    type = azapi_resource.partner_admin_link.type
   }
   description = "Detailed PAL status"
 }
