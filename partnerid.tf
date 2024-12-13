@@ -1,4 +1,3 @@
-
 # Get Azure AD tenant details
 data "azuread_client_config" "current" {}
 
@@ -15,8 +14,18 @@ data "azapi_resource" "check_pal" {
   response_export_values = ["*"]
 }
 
-# Create or update Partner Admin Link
+locals {
+  current_pal = try(data.azapi_resource.check_pal.output, null)
+  is_pal_active = try(jsondecode(local.current_pal).properties.state == "Active", false)
+  needs_update = !local.is_pal_active || (
+    try(jsondecode(local.current_pal).properties.objectId, "") != data.azuread_service_principal.sp.object_id ||
+    try(jsondecode(local.current_pal).properties.partnerId, "") != var.partner_id
+  )
+}
+
+# Create or update Partner Admin Link only if needed
 resource "azapi_resource" "partner_admin_link" {
+  count                     = local.needs_update ? 1 : 0
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
   name                      = var.partner_id
   parent_id                 = "/"
@@ -49,6 +58,11 @@ output "tenant_id" {
 }
 
 output "pal_status" {
-  value = data.azapi_resource.check_pal.output
+  value = try(jsondecode(data.azapi_resource.check_pal.output), {})
   description = "Current Partner Admin Link status"
+}
+
+output "needs_update" {
+  value = local.needs_update
+  description = "Indicates whether PAL needs to be created or updated"
 }
