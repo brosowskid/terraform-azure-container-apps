@@ -32,53 +32,33 @@ terraform {
   }
 }
 
-# Data source to get the service principal details
+# Get service principal details
 data "azuread_service_principal" "sp" {
   display_name = var.service_principal_name
 }
 
-# Check if Partner Admin Link exists
-data "azapi_resource" "check_pal" {
-  type      = "microsoft.managementpartner/partners@2018-02-01"
-  name      = var.partner_id
-  parent_id = ""
-
-  response_export_values = ["*"]
-}
-
 # Create or update Partner Admin Link
 resource "azapi_resource" "partner_admin_link" {
-  type      = "microsoft.managementpartner/partners@2018-02-01"
+  type      = "Microsoft.ManagementPartner/partners@2018-02-01"
   name      = var.partner_id
-  parent_id = ""
+  parent_id = "/"  # Root level as it's a tenant-wide resource
 
   body = jsonencode({
-    properties = {
-      objectId = data.azuread_service_principal.sp.id
-      partnerId = var.partner_id
-      tenantId = data.azuread_service_principal.sp.application_tenant_id
-    }
+    partnerId = var.partner_id
   })
 }
 
 # Outputs
-output "service_principal_id" {
-  value = data.azuread_service_principal.sp.id
+output "service_principal_details" {
+  value = {
+    display_name = data.azuread_service_principal.sp.display_name
+    object_id    = data.azuread_service_principal.sp.object_id
+    app_id       = data.azuread_service_principal.sp.application_id
+  }
+  description = "Details of the service principal"
 }
 
 output "partner_id" {
   value = var.partner_id
-}
-
-output "pal_status" {
-  value = {
-    exists = can(data.azapi_resource.check_pal.id)
-    state  = can(data.azapi_resource.check_pal.id) ? jsondecode(data.azapi_resource.check_pal.output).state : "NotFound"
-  }
-  description = "Current status of the Partner Admin Link configuration"
-}
-
-output "pal_result" {
-  value = jsondecode(azapi_resource.partner_admin_link.output)
-  description = "Result of the Partner Admin Link configuration"
+  description = "The configured Partner ID (MPN ID)"
 }
