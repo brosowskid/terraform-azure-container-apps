@@ -46,7 +46,7 @@ output "tenant_id" {
   description = "The current tenant ID"
 }
 
-output "configuration_message" {
-  value = "Partner Admin Link configuration attempted. Please verify in Azure Portal or using az cli with appropriate permissions."
-  description = "Configuration status message"
+output "pal_status" {
+  value = data.azapi_resource.check_pal.output
+  description = "Current Partner Admin Link status"
 }
