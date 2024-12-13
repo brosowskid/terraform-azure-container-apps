@@ -37,20 +37,20 @@ output "service_principal_details" {
 }
 
 output "partner_id" {
-  value = var.partner_id
+  value       = var.partner_id
   description = "The configured Partner ID (MPN ID)"
 }
 
 output "tenant_id" {
-  value = data.azuread_client_config.current.tenant_id
+  value       = data.azuread_client_config.current.tenant_id
   description = "The current tenant ID"
 }
 
 output "pal_configuration_status" {
   value = {
-    is_configured = can(azapi_resource.partner_admin_link.id)
+    is_configured     = can(azapi_resource.partner_admin_link.id)
     service_principal = data.azuread_service_principal.sp.display_name
-    mpn_id = var.partner_id
+    mpn_id            = var.partner_id
   }
   description = "Configuration status of Partner Admin Link"
 }

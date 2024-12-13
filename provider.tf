@@ -2,13 +2,13 @@
 variable "partner_id" {
   type        = string
   description = "The Microsoft Partner Network ID (MPN ID)"
-default = "714306"
+  default     = "714306"
 }
 
 variable "service_principal_name" {
   type        = string
   description = "The display name of the service principal to link"
-  default = "tfc-deployment-sp"
+  default     = "tfc-deployment-sp"
 }
 
 provider "azapi" {
@@ -19,14 +19,14 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">=3.0.0"
+      version = ">=4.1.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
       version = ">=2.0.0"
     }
     azapi = {
-      source  = "Azure/azapi"  # Corrected source path
+      source  = "Azure/azapi" # Corrected source path
       version = ">=1.5.0"
     }
   }
