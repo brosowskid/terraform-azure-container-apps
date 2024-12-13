@@ -7,7 +7,7 @@ provider "azurerm" {
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${var.project}-${var.environment}-${var.location_short}"
   location = var.location
-  tags     = var.tags
+  # tags     = var.tags
 }
 
 # # Virtual Network
