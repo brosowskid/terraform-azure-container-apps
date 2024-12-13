@@ -51,21 +51,6 @@ output "tenant_id" {
 #   description = "Current Partner Admin Link status"
 # }
 
-output "pal_status" {
-  value = try({
-    raw_output = jsondecode(azapi_resource.partner_admin_link.output)
-    properties = try(jsondecode(azapi_resource.partner_admin_link.output).properties, {})
-    state = try(jsondecode(azapi_resource.partner_admin_link.output).properties.state, "Unknown")
-    partner_name = try(jsondecode(azapi_resource.partner_admin_link.output).properties.partnerName, "Unknown")
-    created_time = try(jsondecode(azapi_resource.partner_admin_link.output).properties.createdTime, "Unknown")
-    updated_time = try(jsondecode(azapi_resource.partner_admin_link.output).properties.updatedTime, "Unknown")
-    version = try(jsondecode(azapi_resource.partner_admin_link.output).properties.version, "Unknown")
-    resource_id = azapi_resource.partner_admin_link.id
-    type = azapi_resource.partner_admin_link.type
-  }, {})
-  description = "Detailed Partner Admin Link status"
-}
-
 output "pal_configuration_status" {
   value = {
     is_configured = can(azapi_resource.partner_admin_link.id)
