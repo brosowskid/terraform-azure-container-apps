@@ -61,7 +61,6 @@ output "pal_status" {
     updated_time = try(jsondecode(azapi_resource.partner_admin_link.output).properties.updatedTime, "Unknown")
     version = try(jsondecode(azapi_resource.partner_admin_link.output).properties.version, "Unknown")
     resource_id = azapi_resource.partner_admin_link.id
-    etag = azapi_resource.partner_admin_link.etag
     type = azapi_resource.partner_admin_link.type
   }, {})
   description = "Detailed Partner Admin Link status"
