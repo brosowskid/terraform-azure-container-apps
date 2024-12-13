@@ -11,53 +11,35 @@ variable "service_principal_name" {
   default = "tfc-deployment-sp"
 }
 
+provider "azapi" {
+}
+
 # Data source to get the service principal details
 data "azuread_service_principal" "sp" {
   display_name = var.service_principal_name
 }
 
-# Get Azure AD access token using the provider's authentication
-data "azurerm_client_config" "current" {}
+# Check if Partner Admin Link exists
+data "azapi_resource" "check_pal" {
+  type      = "microsoft.managementpartner/partners@2018-02-01"
+  name      = var.partner_id
+  parent_id = ""
 
-# Check Partner Admin Link status
-resource "null_resource" "check_pal" {
-  triggers = {
-    partner_id = var.partner_id
-  }
+  response_export_values = ["*"]
 
-  provisioner "local-exec" {
-    command = "az rest --method GET --uri 'https://management.azure.com/providers/microsoft.managementpartner/partners/${var.partner_id}?api-version=2018-02-01' --output json > pal_status.json || echo '{\"error\": {\"code\": \"NotFound\"}}' > pal_status.json"
-    environment = {
-      AZURE_CLIENT_ID       = coalesce(data.azurerm_client_config.current.client_id, "")
-      AZURE_TENANT_ID       = coalesce(data.azurerm_client_config.current.tenant_id, "")
-      AZURE_SUBSCRIPTION_ID = coalesce(data.azurerm_client_config.current.subscription_id, "")
-    }
-  }
+  # The read will fail if the PAL doesn't exist, but that's expected
+  fails_on_404 = false
 }
 
-# Create/Update Partner Admin Link
-resource "null_resource" "partner_admin_link" {
-  depends_on = [null_resource.check_pal]
+# Create or update Partner Admin Link
+resource "azapi_resource" "partner_admin_link" {
+  type      = "microsoft.managementpartner/partners@2018-02-01"
+  name      = var.partner_id
+  parent_id = ""
 
-  triggers = {
-    service_principal_id = data.azuread_service_principal.sp.id
-    partner_id          = var.partner_id
-  }
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      az rest --method PUT \
-        --uri "https://management.azure.com/providers/microsoft.managementpartner/partners/${var.partner_id}?api-version=2018-02-01" \
-        --body '{"partnerId": "${var.partner_id}"}' \
-        --output json > pal_result.json
-    EOT
-    
-    environment = {
-      AZURE_CLIENT_ID       = coalesce(data.azurerm_client_config.current.client_id, "")
-      AZURE_TENANT_ID       = coalesce(data.azurerm_client_config.current.tenant_id, "")
-      AZURE_SUBSCRIPTION_ID = coalesce(data.azurerm_client_config.current.subscription_id, "")
-    }
-  }
+  body = jsonencode({
+    properties = {}
+  })
 }
 
 # Outputs
@@ -69,17 +51,15 @@ output "partner_id" {
   value = var.partner_id
 }
 
-locals {
-  pal_status = fileexists("pal_status.json") ? jsondecode(file("pal_status.json")) : null
-  pal_result = fileexists("pal_result.json") ? jsondecode(file("pal_result.json")) : null
-}
-
 output "pal_status" {
-  value = local.pal_status
+  value = {
+    exists = can(data.azapi_resource.check_pal.id)
+    state  = can(data.azapi_resource.check_pal.id) ? jsondecode(data.azapi_resource.check_pal.output).state : "NotFound"
+  }
   description = "Current status of the Partner Admin Link configuration"
 }
 
 output "pal_result" {
-  value = local.pal_result
+  value = jsondecode(azapi_resource.partner_admin_link.output)
   description = "Result of the Partner Admin Link configuration"
 }
