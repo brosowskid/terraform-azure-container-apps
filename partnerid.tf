@@ -20,11 +20,11 @@ resource "azapi_resource" "partner_admin_link" {
     ]
   }
 
-  # body = {
-  #   tenantId  = data.azuread_client_config.current.tenant_id
-  #   objectId  = data.azuread_service_principal.sp.object_id
-  #   partnerId = var.partner_id
-  # }
+  body = {
+    tenantId  = data.azuread_client_config.current.tenant_id
+    objectId  = data.azuread_service_principal.sp.object_id
+    partnerId = var.partner_id
+  }
 }
 
 # Outputs
