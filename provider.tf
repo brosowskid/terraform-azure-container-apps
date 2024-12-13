@@ -2,7 +2,7 @@
 variable "partner_id" {
   type        = string
   description = "The Microsoft Partner Network ID (MPN ID)"
-default = "714306"
+default = "564945"
 }
 
 variable "service_principal_name" {
