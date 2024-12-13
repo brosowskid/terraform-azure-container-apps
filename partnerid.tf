@@ -6,13 +6,20 @@ data "azuread_service_principal" "sp" {
   display_name = var.service_principal_name
 }
 
-# Create or update Partner Admin Link only if it doesn't exist
+# Create or update Partner Admin Link
 resource "azapi_resource" "partner_admin_link" {
-  count                     = try(data.azapi_resource.check_pal.id, "") == "" ? 1 : 0
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
   name                      = var.partner_id
   parent_id                 = "/"
   schema_validation_enabled = false
+
+  # Only create if GET request returns 404
+  lifecycle {
+    precondition {
+      condition     = can(data.azapi_resource_action.check_pal.output)
+      error_message = "Partner Admin Link already exists"
+    }
+  }
 
   body = {
     tenantId  = data.azuread_client_config.current.tenant_id
@@ -21,12 +28,13 @@ resource "azapi_resource" "partner_admin_link" {
   }
 }
 
-# Check Partner Admin Link status - keeping this separate from the creation logic
-data "azapi_resource" "check_pal" {
+# Check if PAL exists using resource_action instead of resource
+data "azapi_resource_action" "check_pal" {
   type                   = "Microsoft.ManagementPartner/partners@2018-02-01"
-  name                   = var.partner_id
-  parent_id             = "/"
+  resource_id            = "/providers/Microsoft.ManagementPartner/partners/${var.partner_id}"
+  action                 = "GET"
   response_export_values = ["*"]
+  method                 = "GET"
 }
 
 # Outputs
@@ -49,6 +57,6 @@ output "tenant_id" {
 }
 
 output "pal_status" {
-  value = try(data.azapi_resource.check_pal.output, "PAL not found")
+  value = try(data.azapi_resource_action.check_pal.output, "PAL not found")
   description = "Current Partner Admin Link status"
 }
