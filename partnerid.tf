@@ -46,11 +46,6 @@ output "tenant_id" {
   description = "The current tenant ID"
 }
 
-# output "pal_status" {
-#   value = azapi_resource.partner_admin_link.output
-#   description = "Current Partner Admin Link status"
-# }
-
 output "pal_configuration_status" {
   value = {
     is_configured = can(azapi_resource.partner_admin_link.id)
