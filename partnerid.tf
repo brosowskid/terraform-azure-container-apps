@@ -6,16 +6,24 @@ data "azuread_service_principal" "sp" {
   display_name = var.service_principal_name
 }
 
+# Check Partner Admin Link status
+data "azapi_resource" "check_pal" {
+  type                   = "Microsoft.ManagementPartner/partners@2018-02-01"
+  name                   = var.partner_id
+  parent_id             = "/"
+  response_export_values = ["*"]
+}
+
 # Create or update Partner Admin Link
 resource "azapi_resource" "partner_admin_link" {
-  type      = "Microsoft.ManagementPartner/partners@2018-02-01"
-  name      = var.partner_id
-  parent_id = "/"
+  type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
+  name                      = var.partner_id
+  parent_id                 = "/"
   schema_validation_enabled = false
 
   body = {
-    tenantId = data.azuread_client_config.current.tenant_id
-    objectId = data.azuread_service_principal.sp.object_id
+    tenantId  = data.azuread_client_config.current.tenant_id
+    objectId  = data.azuread_service_principal.sp.object_id
     partnerId = var.partner_id
   }
 }
@@ -37,4 +45,9 @@ output "partner_id" {
 output "tenant_id" {
   value = data.azuread_client_config.current.tenant_id
   description = "The current tenant ID"
+}
+
+output "pal_status" {
+  value = jsondecode(data.azapi_resource.check_pal.output)
+  description = "Current Partner Admin Link status"
 }
