@@ -1,11 +1,13 @@
 variable "project" {
   description = "Project name used for resource naming"
   type        = string
+  default     = "partnerid"
 }
 
 variable "environment" {
   description = "Environment name (e.g., dev, prod, stage)"
   type        = string
+  default     = "dev"
 }
 
 variable "location" {
@@ -92,4 +94,26 @@ variable "log_analytics_sku" {
   description = "SKU for Log Analytics Workspace"
   type        = string
   default     = "PerGB2018"
+}
+
+
+variable "tfc_azure_dynamic_credentials" {
+  description = "Object containing Azure dynamic credentials configuration"
+  type = object({
+    default = object({
+      client_id_file_path  = string
+      oidc_token_file_path = string
+    })
+  })
+  ephemeral = true
+}
+
+provider "azurerm" {
+  features {}
+  // use_cli should be set to false to yield more accurate error messages on auth failure.
+  use_cli = false
+  // use_oidc must be explicitly set to true when using multiple configurations.
+  use_oidc             = true
+  client_id_file_path  = var.tfc_azure_dynamic_credentials.default.client_id_file_path
+  oidc_token_file_path = var.tfc_azure_dynamic_credentials.default.oidc_token_file_path
 }
