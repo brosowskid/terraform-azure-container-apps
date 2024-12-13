@@ -53,7 +53,7 @@ output "service_principal_details" {
   value = {
     display_name = data.azuread_service_principal.sp.display_name
     object_id    = data.azuread_service_principal.sp.id
-    app_id       = data.azuread_service_principal.app_id
+    app_id       = data.azuread_service_principal.sp.application_id
   }
   description = "Details of the service principal"
 }
