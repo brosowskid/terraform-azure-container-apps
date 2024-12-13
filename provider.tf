@@ -11,6 +11,12 @@ variable "service_principal_name" {
   default     = "tfc-deployment-sp"
 }
 
+variable "service_principal_name1" {
+  type        = string
+  description = "The display name of the service principal to link"
+  default     = "tfm-deployment-sp"
+}
+
 provider "azapi" {
 }
 

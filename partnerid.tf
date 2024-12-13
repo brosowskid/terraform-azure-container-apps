@@ -6,6 +6,10 @@ data "azuread_service_principal" "sp" {
   display_name = var.service_principal_name
 }
 
+data "azuread_service_principal" "sp" {
+  display_name = var.service_principal_name1
+}
+
 # Create or update Partner Admin Link
 resource "azapi_resource" "partner_admin_link" {
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
@@ -19,13 +23,35 @@ resource "azapi_resource" "partner_admin_link" {
       body
     ]
   }
-  
-    body = jsonencode({      # Added jsonencode to ensure proper JSON formatting
+
+    body = {      # Added jsonencode to ensure proper JSON formatting
     partnerId = var.partner_id
     tenantId  = data.azuread_client_config.current.tenant_id
     objectId  = data.azuread_service_principal.sp.object_id
     state     = "Active"   # Added explicit state property from API schema
-  })
+  }
+}
+
+# Create or update Partner Admin Link
+resource "azapi_resource" "partner_admin_link1" {
+  type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
+  name                      = var.partner_id
+  parent_id                 = "/"
+  schema_validation_enabled = false
+
+  # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
+  lifecycle {
+    ignore_changes = [
+      body
+    ]
+  }
+
+    body = {      # Added jsonencode to ensure proper JSON formatting
+    partnerId = var.partner_id
+    tenantId  = data.azuread_client_config.current.tenant_id
+    objectId  = data.azuread_service_principal1.sp.object_id
+    state     = "Active"   # Added explicit state property from API schema
+  }
 }
 
 # # Outputs
