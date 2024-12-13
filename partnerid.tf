@@ -20,12 +20,13 @@ resource "azapi_resource" "partner_admin_link" {
   name                      = var.partner_id
   parent_id                 = "/"
   schema_validation_enabled = false
+    ignore_missing_property  = true
+  ignore_casing           = true
 
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
     ignore_changes = [
-      body,
-      name
+      body
     ]
   }
 
@@ -43,12 +44,13 @@ resource "azapi_resource" "partner_admin_link1" {
   name                      = var.partner_id
   parent_id                 = "/"
   schema_validation_enabled = false
+    ignore_missing_property  = true
+  ignore_casing           = true
 
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
     ignore_changes = [
-      body,
-      name
+      body
     ]
   }
 
@@ -65,12 +67,13 @@ resource "azapi_resource" "partner_admin_link2" {
   name                      = var.partner_id
   parent_id                 = "/"
   schema_validation_enabled = false
+    ignore_missing_property  = true
+  ignore_casing           = true
 
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
     ignore_changes = [
-      body,
-      name
+      body
     ]
   }
 
