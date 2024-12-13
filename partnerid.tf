@@ -27,36 +27,78 @@ resource "azapi_resource" "partner_admin_link" {
   }
 }
 
-# Outputs
-output "service_principal_details" {
-  value = {
-    display_name = data.azuread_service_principal.sp.display_name
-    object_id    = data.azuread_service_principal.sp.object_id
-  }
-  description = "Details of the service principal"
-}
-
-output "partner_id" {
-  value = var.partner_id
-  description = "The configured Partner ID (MPN ID)"
-}
-
-output "tenant_id" {
-  value = data.azuread_client_config.current.tenant_id
-  description = "The current tenant ID"
-}
-
-# output "pal_status" {
-#   value = azapi_resource.partner_admin_link.output
-#   description = "Current Partner Admin Link status"
+# # Outputs
+# output "service_principal_details" {
+#   value = {
+#     display_name = data.azuread_service_principal.sp.display_name
+#     object_id    = data.azuread_service_principal.sp.object_id
+#   }
+#   description = "Details of the service principal"
 # }
 
-output "pal_configuration_status" {
+# output "partner_id" {
+#   value = var.partner_id
+#   description = "The configured Partner ID (MPN ID)"
+# }
+
+# output "tenant_id" {
+#   value = data.azuread_client_config.current.tenant_id
+#   description = "The current tenant ID"
+# }
+
+# # output "pal_status" {
+# #   value = azapi_resource.partner_admin_link.output
+# #   description = "Current Partner Admin Link status"
+# # }
+
+# output "pal_configuration_status" {
+#   value = {
+#     is_configured = can(azapi_resource.partner_admin_link.id)
+#     service_principal = data.azuread_service_principal.sp.display_name
+#     mpn_id = var.partner_id
+#   }
+#   description = "Configuration status of Partner Admin Link"
+# }
+
+
+locals {
+  pal_output = jsondecode(azapi_resource.partner_admin_link.output)
+  pal_exists = can(azapi_resource.partner_admin_link.id)
+  # Check if current configuration matches the desired state
+  needs_update = local.pal_exists ? (
+    try(local.pal_output.properties.objectId, "") != data.azuread_service_principal.sp.object_id ||
+    try(local.pal_output.properties.partnerId, "") != var.partner_id ||
+    try(local.pal_output.properties.state, "") != "Active"
+  ) : true
+}
+
+# Outputs
+output "needs_update" {
+  value       = local.needs_update
+  description = "Whether the PAL needs to be updated"
+}
+
+output "pal_exists" {
+  value       = local.pal_exists
+  description = "Whether the PAL exists"
+}
+
+output "pal_status" {
   value = {
-    is_configured = can(azapi_resource.partner_admin_link.id)
-    last_updated = timestamp()
-    service_principal = data.azuread_service_principal.sp.display_name
-    mpn_id = var.partner_id
+    etag       = try(local.pal_output.etag, null)
+    id         = try(local.pal_output.id, null)
+    name       = try(local.pal_output.name, null)
+    properties = {
+      createdTime  = try(local.pal_output.properties.createdTime, null)
+      objectId     = try(local.pal_output.properties.objectId, null)
+      partnerId    = try(local.pal_output.properties.partnerId, null)
+      partnerName  = try(local.pal_output.properties.partnerName, null)
+      state        = try(local.pal_output.properties.state, null)
+      tenantId     = try(local.pal_output.properties.tenantId, null)
+      updatedTime  = try(local.pal_output.properties.updatedTime, null)
+      version      = try(local.pal_output.properties.version, null)
+    }
+    type = try(local.pal_output.type, null)
   }
-  description = "Configuration status of Partner Admin Link"
+  description = "Detailed PAL status"
 }
