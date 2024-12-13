@@ -10,7 +10,7 @@ data "azuread_service_principal" "sp" {
 resource "azapi_resource" "partner_admin_link" {
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
   name                      = var.partner_id
-  parent_id                 = "/"
+  # parent_id                 = "/"
   schema_validation_enabled = false
 
   # Use ignore_changes to prevent Terraform from trying to update an existing PAL
