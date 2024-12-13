@@ -18,11 +18,12 @@ data "azuread_service_principal" "sp2" {
 resource "azapi_resource" "partner_admin_link" {
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
   name                      = var.partner_id
-  id               = "/providers/Microsoft.ManagementPartner/partners/${var.partner_id}-${data.azuread_service_principal.sp.object_id}"
   parent_id                 = "/"
   schema_validation_enabled = false
-    ignore_missing_property  = true
-  ignore_casing           = true
+
+  tags = {
+    unique_id           = "${var.partner_id}-${data.azuread_service_principal.sp.object_id}"
+  }
 
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
@@ -43,11 +44,12 @@ resource "azapi_resource" "partner_admin_link" {
 resource "azapi_resource" "partner_admin_link1" {
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
   name                      = var.partner_id
-  id               = "/providers/Microsoft.ManagementPartner/partners/${var.partner_id}-${data.azuread_service_principal.sp1.object_id}"
   parent_id                 = "/"
   schema_validation_enabled = false
-    ignore_missing_property  = true
-  ignore_casing           = true
+
+  tags = {
+    unique_id           = "${var.partner_id}-${data.azuread_service_principal.sp1.object_id}"
+  }
 
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
@@ -67,11 +69,12 @@ resource "azapi_resource" "partner_admin_link1" {
 resource "azapi_resource" "partner_admin_link2" {
   type                      = "Microsoft.ManagementPartner/partners@2018-02-01"
   name                      = var.partner_id
-  id               = "/providers/Microsoft.ManagementPartner/partners/${var.partner_id}-${data.azuread_service_principal.sp2.object_id}"
   parent_id                 = "/"
   schema_validation_enabled = false
-    ignore_missing_property  = true
-  ignore_casing           = true
+
+  tags = {
+    unique_id           = "${var.partner_id}-${data.azuread_service_principal.sp2.object_id}"
+  }
 
   # # Use ignore_changes to prevent Terraform from trying to update an existing PAL
   lifecycle {
