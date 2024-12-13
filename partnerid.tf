@@ -59,8 +59,3 @@ output "pal_configuration_status" {
   }
   description = "Configuration status of Partner Admin Link"
 }
-
-output "pal_exists" {
-  value       = can(azapi_resource.partner_admin_link.id)
-  description = "Whether the PAL exists"
-}
